@@ -21,8 +21,14 @@ TARGET_PATH := $(BINDIR)/$(TARGET)
 
 all: $(TARGET_PATH)
 
-# TODO: 在这里添加你的代码
-# I AM NOT DONE
+$(TARGET_PATH): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LINKLIBS) -lmysed -lmyfile -lmywc -lmytrans
+
+$(OBJDIR)/%.o: %.c | $(OBJDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
 clean:
 	@rm -rf $(OBJDIR)/*.o $(TARGET_PATH)

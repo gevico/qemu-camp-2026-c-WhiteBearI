@@ -60,7 +60,7 @@ int main() {
         test_finish();
         return 1;
     }
-
+    
     // printf("📝 程序实际完整输出:\n%s\n", output);
     ASSERT_TRUE(string_contains(output, myfile_required_strings[0]), "输出应该包含'ELF Type: Shared Object/PIE (ET_DYN) (0x3)'");
     ASSERT_TRUE(string_contains(output, myfile_required_strings[1]), "输出应该包含'ELF Type: Relocatable (ET_REL) (0x1)'");

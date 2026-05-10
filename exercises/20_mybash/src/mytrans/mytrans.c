@@ -7,8 +7,16 @@
 #include <string.h>
 
 void trim(char *str) {
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (!str) return;
+
+    char *start = str;
+    while (isspace(*start)) start++;
+
+    char *end = start + strlen(start) - 1;
+    while (end > start && isspace(*end)) end--;
+
+    memmove(str, start, end - start + 1);
+    str[end - start + 1] = '\0';
 }
 
 int load_dictionary(const char *filename, HashTable *table,
@@ -24,8 +32,38 @@ int load_dictionary(const char *filename, HashTable *table,
   char current_translation[1024] = {0};
   int in_entry = 0;
 
-    // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+  while (fgets(line, sizeof(line), file)) {
+    line[strcspn(line, "\n")] = '\0';
+
+    if (line[0] == '\0') continue;
+
+    if (line[0] == '#') {
+      // 保存上一条词条
+      if (in_entry) {
+        hash_table_insert(table, current_word, current_translation);
+        (*dict_count)++;
+      }
+      // 开始新词条
+      strncpy(current_word, line + 1, sizeof(current_word) - 1);
+      current_word[sizeof(current_word) - 1] = '\0';
+      memset(current_translation, 0, sizeof(current_translation));
+      in_entry = 1;
+    } else if (strncmp(line, "Trans:", 6) == 0) {
+      // 追加翻译
+      if (current_translation[0] != '\0') {
+        strncat(current_translation, "@",
+                sizeof(current_translation) - strlen(current_translation) - 1);
+      }
+      strncat(current_translation, line + 6,
+              sizeof(current_translation) - strlen(current_translation) - 1);
+    }
+  }
+
+  // 保存最后一条词条
+  if (in_entry) {
+    hash_table_insert(table, current_word, current_translation);
+    (*dict_count)++;
+  }
 
   fclose(file);
   return 0;
@@ -45,7 +83,7 @@ int __cmd_mytrans(const char* filename) {
 
   printf("=== 哈希表版英语翻译器（支持百万级数据）===\n");
   uint64_t dict_count = 0;
-  if (load_dictionary("/workspace/exercises/20_mybash/src/mytrans/dict.txt", table, &dict_count) != 0) {
+  if (load_dictionary("src/mytrans/dict.txt", table, &dict_count) != 0) {
     fprintf(stderr, "加载词典失败，请确保 dict.txt 存在。\n");
     free_hash_table(table);
     return 1;

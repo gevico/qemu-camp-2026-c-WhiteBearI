@@ -6,7 +6,7 @@
 #define NAME_LEN 50
 
 typedef struct {
-    char name[NAME_LEN];
+    char name[NAME_LEN];        
     int score;
 } Student;
 
@@ -15,7 +15,20 @@ Student temp[MAX_STUDENTS];
 
 void merge_sort(int left, int right) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (left >= right) return;
+    int mid = (left + right) / 2;
+    merge_sort(left, mid);
+    merge_sort(mid + 1, right);
+    int k = 0, i = left, j = mid + 1;
+    while (i <= mid && j <= right) {
+        if (students[i].score >= students[j].score) temp[k ++] = students[i ++];
+        else temp[k ++] = students[j ++];
+    }
+    while (i <= mid) temp[k ++] = students[i ++];
+    while (j <= right) temp[k ++] = students[j ++];
+    for (i = left, j = 0; i <= right; i ++, j ++) {
+        students[i] = temp[j];
+    }
 }
 
 int main(void) {

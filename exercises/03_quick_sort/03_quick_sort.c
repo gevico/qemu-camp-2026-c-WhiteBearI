@@ -14,7 +14,20 @@ Student students[MAX_STUDENTS];
 
 void quick_sort(int left, int right) {
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    if (left >= right) return;
+    printf("l = %d, r = %d\n", left, right);
+    int i = left - 1, j = right + 1, x = students[(left + right) / 2].score;
+    while (i < j) {
+        do i ++; while (students[i].score > x);
+        do j --; while (students[j].score < x);
+        if (i < j) {
+            Student tmp = students[j];
+            students[j] = students[i];
+            students[i] = tmp;
+        }
+    }
+    quick_sort(left, j);
+    quick_sort(j + 1, right);
 }
 
 int main(void) {

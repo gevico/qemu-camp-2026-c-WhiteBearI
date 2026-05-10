@@ -4,12 +4,21 @@ CFLAGS = -Wall -g -O2
 
 TARGET = 19_mytrans
 SRCS = 19_mytrans.c mytrans.c myhash.c
-OBJS := $(SRCS:.c=.o)
+OBJS := 19_mytrans.o mytrans.o myhash.o
 
 all: $(TARGET)
 
-# TODO: 在这里添加你的代码
-# I AM NOT DONE
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+19_mytrans.o: 19_mytrans.c myhash.h
+	$(CC) $(CFLAGS) -c 19_mytrans.c -o 19_mytrans.o
+
+mytrans.o: mytrans.c myhash.h
+	$(CC) $(CFLAGS) -c mytrans.c -o mytrans.o
+
+myhash.o: myhash.c myhash.h
+	$(CC) $(CFLAGS) -c myhash.c -o myhash.o
 
 clean:
 	rm -f $(OBJS) $(TARGET)

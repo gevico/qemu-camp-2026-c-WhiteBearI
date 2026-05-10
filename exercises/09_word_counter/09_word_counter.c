@@ -1,10 +1,18 @@
 #include <stdio.h>
+#include <string.h>
 
 int main() {
     char str[]="Don't ask what your country can do for you, but ask what you can do for your country.";
     int wordCount = 0;
     // TODO: 在这里添加你的代码
-    // I AM NOT DONE
+    int len = strlen(str);
+    int j = 0;
+    for (int i = 0; i < len; i ++) {
+        j = i;
+        while (j < len && str[j] == ' ') j ++;
+        if (j > i) wordCount ++;
+    }
+    if (j < len) wordCount ++;
     
     printf("单词数量: %d\n", wordCount);
     

@@ -8,8 +8,13 @@ OBJS := $(SRCS:.c=.o)
 all: $(TARGET)
 
 # TODO: 在这里添加你的代码
-# I AM NOT DONE
+# 链接规则：生成可执行文件
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
+# 编译规则：生成目标文件
+$(OBJS): $(SRCS)
+	$(CC) $(CFLAGS) -c $< -o $@
 clean:
 	rm -f $(TARGET) $(OBJS)
 
