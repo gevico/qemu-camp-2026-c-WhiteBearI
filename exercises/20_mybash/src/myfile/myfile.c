@@ -1,4 +1,9 @@
 #include "myfile.h"
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 void print_elf_type(uint16_t e_type) {
     const char *type_str;
@@ -43,13 +48,21 @@ int __cmd_myfile(const char* filename) {
         perror("open");
         return 1;
     }
-
-    if (read(fd, &ehdr, sizeof(ehdr)) != sizeof(ehdr)) {
+    
+    ssize_t nread = read(fd, &ehdr, sizeof(ehdr));
+    if (nread != sizeof(ehdr)) {
         perror("read");
         close(fd);
         return 1;
     }
-
+    
+    // 检查ELF魔数
+    if (strncmp((char*)ehdr.e_ident, ELFMAG, SELFMAG) != 0) {
+        fprintf(stderr, "Not an ELF file\n");
+        close(fd);
+        return 1;
+    }
+    
     print_elf_type(ehdr.e_type);
     close(fd);
     return 0;

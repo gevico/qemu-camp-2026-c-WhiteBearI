@@ -59,6 +59,7 @@ int hash_table_insert(HashTable *table, const char *key, const char *value) {
   // 检查键是否已存在
   while (node != NULL) {
     if (strcmp(node->key, key) == 0) {
+      // 键已存在，更新值
       free(node->value);
       node->value = strdup(value);
       return 1;
@@ -66,13 +67,13 @@ int hash_table_insert(HashTable *table, const char *key, const char *value) {
     node = node->next;
   }
 
-  // 插入新节点（头插法）
-  HashNode *new_node = malloc(sizeof(HashNode));
-  if (!new_node) return 0;
-  new_node->key = strdup(key);
-  new_node->value = strdup(value);
-  new_node->next = table->buckets[hash];
-  table->buckets[hash] = new_node;
+  // 创建新节点
+  node = (HashNode *)malloc(sizeof(HashNode));
+  if (!node) return 0;
+  node->key = strdup(key);
+  node->value = strdup(value);
+  node->next = table->buckets[hash];
+  table->buckets[hash] = node;
 
   return 1;
 }
@@ -91,6 +92,6 @@ const char *hash_table_lookup(HashTable *table, const char *key) {
     }
     node = node->next;
   }
-
+  
   return NULL; // 未找到
 }

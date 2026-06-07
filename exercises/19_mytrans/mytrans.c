@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void to_lowercase(char *str);
+extern void to_lowercase(char *str);
 
 void trim(char *str) {
     if (!str) return;
@@ -41,23 +41,28 @@ int load_dictionary(const char *filename, HashTable *table,
     if (line[0] == '#') {
       // 先处理上一个条目
       if (strlen(current_word) > 0 && strlen(current_translation) > 0) {
+        trim(current_word);
         to_lowercase(current_word);
         hash_table_insert(table, current_word, current_translation);
         (*dict_count)++;
       }
       // 新单词：#word -> word
       strncpy(current_word, line + 1, sizeof(current_word) - 1);
+      current_word[strcspn(current_word, "\n")] = '\0';
       current_translation[0] = '\0';
     } else if (strncmp(line, "Trans:", 6) == 0) {
       // 翻译行：Trans:xxx -> xxx
       const char *trans = line + 6;
-      // 直接连接，不添加空格
+      if (strlen(current_translation) > 0) {
+        strncat(current_translation, " ", sizeof(current_translation) - strlen(current_translation) - 1);
+      }
       strncat(current_translation, trans, sizeof(current_translation) - strlen(current_translation) - 1);
     }
   }
 
   // 处理最后一个条目
   if (strlen(current_word) > 0 && strlen(current_translation) > 0) {
+    trim(current_word);
     to_lowercase(current_word);
     hash_table_insert(table, current_word, current_translation);
     (*dict_count)++;

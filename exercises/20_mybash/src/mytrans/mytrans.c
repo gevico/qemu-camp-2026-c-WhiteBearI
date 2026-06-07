@@ -7,16 +7,24 @@
 #include <string.h>
 
 void trim(char *str) {
-    if (!str) return;
+  char *start = str;
+  char *end;
 
-    char *start = str;
-    while (isspace(*start)) start++;
+  // 跳过前导空格
+  while (*start && isspace(*start)) start++;
 
-    char *end = start + strlen(start) - 1;
-    while (end > start && isspace(*end)) end--;
+  if (*start == 0) {
+    *str = 0;
+    return;
+  }
 
-    memmove(str, start, end - start + 1);
-    str[end - start + 1] = '\0';
+  // 找到末尾
+  end = start + strlen(start) - 1;
+  while (end > start && isspace(*end)) end--;
+
+  // 移动字符串
+  memmove(str, start, end - start + 2);
+  str[end - start + 1] = 0;
 }
 
 int load_dictionary(const char *filename, HashTable *table,
@@ -30,37 +38,30 @@ int load_dictionary(const char *filename, HashTable *table,
   char line[1024];
   char current_word[100] = {0};
   char current_translation[1024] = {0};
-  int in_entry = 0;
 
   while (fgets(line, sizeof(line), file)) {
-    line[strcspn(line, "\n")] = '\0';
-
-    if (line[0] == '\0') continue;
+    trim(line);
 
     if (line[0] == '#') {
-      // 保存上一条词条
-      if (in_entry) {
+      // 新词条开始
+      if (current_word[0] != '\0' && current_translation[0] != '\0') {
         hash_table_insert(table, current_word, current_translation);
         (*dict_count)++;
       }
-      // 开始新词条
       strncpy(current_word, line + 1, sizeof(current_word) - 1);
       current_word[sizeof(current_word) - 1] = '\0';
-      memset(current_translation, 0, sizeof(current_translation));
-      in_entry = 1;
-    } else if (strncmp(line, "Trans:", 6) == 0) {
-      // 追加翻译
+      current_translation[0] = '\0';
+    } else if (line[0] != '\0') {
+      // 翻译内容（可能多行）
       if (current_translation[0] != '\0') {
-        strncat(current_translation, "@",
-                sizeof(current_translation) - strlen(current_translation) - 1);
+        strncat(current_translation, " ", sizeof(current_translation) - strlen(current_translation) - 1);
       }
-      strncat(current_translation, line + 6,
-              sizeof(current_translation) - strlen(current_translation) - 1);
+      strncat(current_translation, line, sizeof(current_translation) - strlen(current_translation) - 1);
     }
   }
 
-  // 保存最后一条词条
-  if (in_entry) {
+  // 处理最后一个词条
+  if (current_word[0] != '\0' && current_translation[0] != '\0') {
     hash_table_insert(table, current_word, current_translation);
     (*dict_count)++;
   }
@@ -92,7 +93,7 @@ int __cmd_mytrans(const char* filename) {
 
   FILE* file = fopen(filename, "r");
   if (file == NULL) {
-    fprintf(stderr, "无法打开文件 dict.txt。\n");
+    fprintf(stderr, "无法打开文件 %s。\n", filename);
     free_hash_table(table);
     return 1;
   }
@@ -120,6 +121,7 @@ int __cmd_mytrans(const char* filename) {
     }
   }
 
+  fclose(file);
   free_hash_table(table);
   return 0;
 }

@@ -13,48 +13,52 @@ int parse_replace_command(const char* cmd, char** old_str, char** new_str) {
     *old_str = NULL;
     *new_str = NULL;
     
-    // 解析格式: s/old/new/
-    if (cmd[0] != 's' || cmd[1] != '/') {
-        return -1;
+    // 检查格式是否为 s/old/new/
+    if (cmd[0] != 's') return -1;
+    if (cmd[1] != '/') return -1;
+    
+    char *p = (char *)(cmd + 2);
+    char *first_slash = strchr(p, '/');
+    if (!first_slash) return -1;
+    
+    *old_str = strndup(p, first_slash - p);
+    
+    char *second_slash = strchr(first_slash + 1, '/');
+    if (!second_slash) {
+      free(*old_str);
+      *old_str = NULL;
+      return -1;
     }
-
-    const char *p = cmd + 2;
-    const char *old_start = p;
-    while (*p && *p != '/') p++;
-    if (*p != '/') return -1;
-
-    size_t old_len = p - old_start;
-    *old_str = malloc(old_len + 1);
-    strncpy(*old_str, old_start, old_len);
-    (*old_str)[old_len] = '\0';
-
-    p++;
-    const char *new_start = p;
-    while (*p && *p != '/') p++;
-    if (*p != '/') return -1;
-
-    size_t new_len = p - new_start;
-    *new_str = malloc(new_len + 1);
-    strncpy(*new_str, new_start, new_len);
-    (*new_str)[new_len] = '\0';
-
+    
+    *new_str = strndup(first_slash + 1, second_slash - first_slash - 1);
+    
     return 0;
 }
 
 void replace_first_occurrence(char* str, const char* old, const char* new) {
+    // 检查输入参数有效性
     if (!str || !old || !new) {
         return;
     }
-
+    
     char *pos = strstr(str, old);
-    if (pos == NULL) return;
-
-    size_t old_len = strlen(old);
-    size_t new_len = strlen(new);
-    size_t tail_len = strlen(pos + old_len);
-
-    memmove(pos + new_len, pos + old_len, tail_len + 1);
-    memcpy(pos, new, new_len);
+    if (!pos) return;
+    
+    char temp[1024];
+    int offset = pos - str;
+    
+    // 复制替换点之前的部分
+    strncpy(temp, str, offset);
+    temp[offset] = '\0';
+    
+    // 添加新字符串
+    strcat(temp, new);
+    
+    // 添加替换点之后的部分
+    strcat(temp, pos + strlen(old));
+    
+    // 复制回原字符串
+    strcpy(str, temp);
 }
 
 int __cmd_mysed(const char* rules, const char* str) {

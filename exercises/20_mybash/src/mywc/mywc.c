@@ -26,7 +26,7 @@ void add_word(WordCount **hash_table, const char *word) {
   unsigned int index = hash(word);
   WordCount *entry = hash_table[index];
 
-  // 搜索已存在的单词
+  // 检查单词是否已存在
   while (entry != NULL) {
     if (strcmp(entry->word, word) == 0) {
       entry->count++;
@@ -35,13 +35,14 @@ void add_word(WordCount **hash_table, const char *word) {
     entry = entry->next;
   }
 
-  // 未找到，添加新节点
-  WordCount *new_entry = malloc(sizeof(WordCount));
-  strncpy(new_entry->word, word, MAX_WORD_LEN - 1);
-  new_entry->word[MAX_WORD_LEN - 1] = '\0';
-  new_entry->count = 1;
-  new_entry->next = hash_table[index];
-  hash_table[index] = new_entry;
+  // 单词不存在，创建新节点
+  entry = (WordCount *)malloc(sizeof(WordCount));
+  if (!entry) return;
+  strncpy(entry->word, word, MAX_WORD_LEN - 1);
+  entry->word[MAX_WORD_LEN - 1] = '\0';
+  entry->count = 1;
+  entry->next = hash_table[index];
+  hash_table[index] = entry;
 }
 
 // 打印单词统计结果
@@ -49,13 +50,35 @@ void print_word_counts(WordCount **hash_table) {
   printf("Word Count Statistics:\n");
   printf("======================\n");
 
+  // 收集所有单词和计数
+  WordCount **all_entries = malloc(sizeof(WordCount *) * 10000);
+  int count = 0;
+  
   for (int i = 0; i < HASH_SIZE; i++) {
     WordCount *entry = hash_table[i];
     while (entry != NULL) {
-      printf("%-20s %d\n", entry->word, entry->count);
+      all_entries[count++] = entry;
       entry = entry->next;
     }
   }
+
+  // 按计数排序（简单冒泡排序）
+  for (int i = 0; i < count - 1; i++) {
+    for (int j = 0; j < count - i - 1; j++) {
+      if (all_entries[j]->count < all_entries[j + 1]->count) {
+        WordCount *temp = all_entries[j];
+        all_entries[j] = all_entries[j + 1];
+        all_entries[j + 1] = temp;
+      }
+    }
+  }
+
+  // 打印前20个最常见的单词
+  for (int i = 0; i < count; i++) {
+    printf("%-21s%d\n", all_entries[i]->word, all_entries[i]->count);
+  }
+  
+  free(all_entries);
 }
 
 // 释放哈希表内存

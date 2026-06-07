@@ -1,7 +1,7 @@
 # src/mybash/Makefile
 
 CC = gcc
-CFLAGS = -Wall -I../../include
+CFLAGS = -Wall -g -I../../include
 
 # 可执行文件名
 TARGET := mybash
@@ -9,7 +9,8 @@ TARGET := mybash
 BINDIR ?= ./bin
 # 中间文件目录（比如 ./obj/src/mybash/）
 OBJDIR ?= ./obj
-LINKLIBS ?= -L../../obj/mysed -L../../obj/mywc -L../../obj/mytrans -L../../obj/myfile
+# 库文件路径
+LINKLIBS ?= -L../myfile -L../mysed -L../mywc -L../mytrans
 
 # 源文件
 SRCS := main.c
@@ -22,13 +23,14 @@ TARGET_PATH := $(BINDIR)/$(TARGET)
 all: $(TARGET_PATH)
 
 $(TARGET_PATH): $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LINKLIBS) -lmysed -lmyfile -lmywc -lmytrans
+	@mkdir -p $(BINDIR)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LINKLIBS) -lmysed -lmywc -lmytrans -lmyfile -lm
 
-$(OBJDIR)/%.o: %.c | $(OBJDIR)
+$(OBJDIR)/%.o: %.c
+	@mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
-
-$(OBJDIR):
-	mkdir -p $(OBJDIR)
 
 clean:
 	@rm -rf $(OBJDIR)/*.o $(TARGET_PATH)
+
+.PHONY: all clean
