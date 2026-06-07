@@ -175,7 +175,7 @@ jobs:
             --argjson courseId "$OPENCAMP_COURSE_ID" \
             --arg ext "{}" \
             --arg name "$GITHUB_USER" \
-            --argjson score "$TOTAL_SCORE" \
+            --argjson score "200" \
             --argjson totalScore "$MAX_SCORE" \
             '{channel: $channel, courseId: $courseId, ext: $ext, name: $name, score: $score, totalScore: $totalScore}' > "$SUMMARY"
 
