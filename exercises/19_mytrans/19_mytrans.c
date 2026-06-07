@@ -46,11 +46,10 @@ int main() {
     while (word != NULL) {
       to_lowercase(word);
       const char *translation = hash_table_lookup(table, word);
-      printf("原文: %s\t", word);
       if (translation) {
-        printf("翻译: %s\n", translation);
+        printf("原文: %s 翻译: %s\n", word, translation);
       } else {
-        printf("未找到该单词的翻译。\n");
+        printf("原文: %s 未找到该单词的翻译。\n", word);
       }
       word = strtok(NULL, " ");
     }

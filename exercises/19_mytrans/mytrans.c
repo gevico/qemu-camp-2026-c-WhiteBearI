@@ -51,9 +51,7 @@ int load_dictionary(const char *filename, HashTable *table,
     } else if (strncmp(line, "Trans:", 6) == 0) {
       // 翻译行：Trans:xxx -> xxx
       const char *trans = line + 6;
-      if (strlen(current_translation) > 0) {
-        strncat(current_translation, " ", sizeof(current_translation) - strlen(current_translation) - 1);
-      }
+      // 直接连接，不添加空格
       strncat(current_translation, trans, sizeof(current_translation) - strlen(current_translation) - 1);
     }
   }

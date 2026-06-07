@@ -198,7 +198,8 @@ int main(int argc, char *argv[]) {
       }
 
       const char *cmd_name = args[0];
-      const char *cmd_arg = (argc >= 2) ? args[1] : NULL;
+      const char *cmd_arg1 = (argc >= 2) ? args[1] : NULL;
+      const char *cmd_arg2 = (argc >= 3) ? args[2] : NULL;
 
       int found = 0;
       for (Command *cmd = commands; cmd->name != NULL; cmd++) {
@@ -207,9 +208,9 @@ int main(int argc, char *argv[]) {
           if (cmd->is_arg_required == 0) {
             cmd->func.func_0();
           } else if (cmd->is_arg_required == 1) {
-            cmd->func.func_1(cmd_arg);
+            cmd->func.func_1(cmd_arg1);
           } else if (cmd->is_arg_required == 2) {
-            cmd->func.func_2(cmd_arg, cmd_arg);
+            cmd->func.func_2(cmd_arg1, cmd_arg2);
           }
           break;
         }
@@ -219,6 +220,11 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "mybash: command not found: %s\n", cmd_name);
       }
     }
+  }
+
+  // 释放动态分配的内存
+  for (int i = 0; i < argc; i++) {
+    free(args[i]);
   }
 
   return 0;
