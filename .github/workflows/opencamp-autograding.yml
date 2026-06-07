@@ -57,8 +57,7 @@ jobs:
         run: make c-checker
 
       - name: Run all exercises
-        working-directory: ./exercises
-        run: ../c-checker check-all
+        run: ./c-checker check-all
 
       - name: Read grading summary
         id: summary
