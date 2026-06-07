@@ -84,7 +84,17 @@ int __cmd_mytrans(const char* filename) {
 
   printf("=== 哈希表版英语翻译器（支持百万级数据）===\n");
   uint64_t dict_count = 0;
-  if (load_dictionary("src/mytrans/dict.txt", table, &dict_count) != 0) {
+  
+  // 构建词典路径：相对于可执行文件的位置
+  char dict_path[1024] = {0};
+  char *exe_path = getenv("PWD");
+  if (exe_path) {
+    snprintf(dict_path, sizeof(dict_path), "%s/src/mytrans/dict.txt", exe_path);
+  } else {
+    strcpy(dict_path, "src/mytrans/dict.txt");
+  }
+  
+  if (load_dictionary(dict_path, table, &dict_count) != 0) {
     fprintf(stderr, "加载词典失败，请确保 dict.txt 存在。\n");
     free_hash_table(table);
     return 1;
